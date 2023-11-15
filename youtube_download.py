@@ -53,6 +53,7 @@ def main(argv):
         """
         
         # convert into Youtube obj to get features
+        yt = None
         try:
             yt = YouTube(video)
         except:
