@@ -11,7 +11,13 @@ def main(argv):
         """
         
         # convert into Youtube obj to get features
-        yt = YouTube(video)
+        yt = None
+        try:
+            yt = YouTube(video)
+        except:
+            print("Failure in converting video...")
+            return
+        
 
         if len(title) > 0:
             yt.title = title
@@ -47,7 +53,13 @@ def main(argv):
         """
         
         # convert into Youtube obj to get features
-        yt = YouTube(video)
+        try:
+            yt = YouTube(video)
+        except:
+            print("Failure in converting current video...")
+            return
+        
+
         name = yt.title
         title = name
         name = f"\033[1;35;40m {name} \u001b[0m"
