@@ -10,7 +10,7 @@ which may cause issues. you will need to pip3 install
 
 If there are any other issues with the pip3 install, it may be that your pip3 is broken or other.
 
-The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt the program
+The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt the program.
 
 # Method 1
 
@@ -24,10 +24,20 @@ Second way is to run it as given. It will then prompt you to give it a YouTube U
 
 # Method 3
 
-The third way allows you to give it multiple arguments containing the proper YouTube URL encased in double quotations as shown
+The third way allows you to give it multiple arguments containing the proper YouTube URL encased in double quotations as shown during excecution.
 
 `python3 youtube_download.py "<YouTube URL #1>" "<YouTube URL #2>"`
 
 Here is an example showing how it can be done
 
 `python3 youtube_download.py "https://www.youtube.com/watch?v=ySO56zJxIns"`
+
+# Method 4
+
+Fourth method is a direct function that accepts multiple parameters into arguments using the following function.
+
+`def download_audio(video, title = "", directory = ".") -> None:`
+
+* video - the string containing a Youtube URL
+* title - if empty, it will use the given YouTube title
+* directory - if you want to store it in a specific directory, otherwise it will download it into the current folder/directory
