@@ -5,10 +5,11 @@ import time
 try:
     from pytube import YouTube
     from pydub import AudioSegment
+    import speech_recognition as sr
 except ImportError:
     print(ImportError.msg)
     print(
-        "\033[1;31;40m Couldn't import |YouTube| from |pytube| OR |AudioSegment| from pydub \u001b[0m "
+        "\033[1;31;40m Couldn't import |YouTube| from |pytube| OR |AudioSegment| from pydub OR speech recognition \u001b[0m "
     )
     print('The needed command for Python3 would be "pip3 install pytube/pydub"')
     print(
@@ -17,6 +18,18 @@ except ImportError:
     print("Exiting program...")
     sys.exit()
 
+# no return yet maybe bool or string format, will determine after if needed, also assuming that the video string is in format .wav
+def wav_to_text(video, title = ""):
+    # use the source file .wav as the audio source to convert to text
+    li = list()
+    speech_recognizer = sr.Recognizer()
+    with speech_recognizer.AudioFile(video) as src:
+        audio = speech_recognizer.record(src)
+
+        print(f"transcription: {speech_recognizer.recognize_google(audio)}")
+        li.append(speech_recognizer.recognize_google(audio))
+    
+    return li
 
 # convert a mp3 file to a wav file
 def convert_to_wav(video, title="") -> bool:
