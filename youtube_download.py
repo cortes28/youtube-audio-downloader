@@ -19,7 +19,7 @@ except ImportError:
     sys.exit()
 
 # no return yet maybe bool or string format, will determine after if needed, also assuming that the video string is in format .wav
-def wav_to_text(video, title = ""):
+def wav_to_text(video, title = "") -> list(str):
     # use the source file .wav as the audio source to convert to text
     li = list()
     speech_recognizer = sr.Recognizer()
@@ -32,26 +32,27 @@ def wav_to_text(video, title = ""):
     return li
 
 # convert a mp3 file to a wav file
-def convert_to_wav(video, title="") -> bool:
+def convert_to_wav(video, title="") -> None:
     """
     input: video title which may contain .mp3 in string format, new title if given one
     """
     dest = ""
     video = video.strip()
     title = title.strip()
+    try:
+        if len(title) != 0:
+            dest = str(title) + ".wav"
+        elif video.includes(".mp3"):
+            dest = video.replace(".mp3", ".wav")
+        else:
+            dest = video + ".wav"
+            video = video + ".mp3"
 
-    if len(title) != 0:
-        dest = str(title) + ".wav"
-    elif video.includes(".mp3"):
-        dest = video.replace(".mp3", ".wav")
-    else:
-        dest = video + ".wav"
-        video = video + ".mp3"
-
-    # convert now from mp3 to wav
-    sound = AudioSegment.from_mp3(video)
-    sound.export(dest, format="wav")
-
+        # convert now from mp3 to wav
+        sound = AudioSegment.from_mp3(video)
+        sound.export(dest, format="wav")
+    except:
+        print(f"Error in converting INPUT:{video} to .wav file...\nNOTE it has to be an .mp3 file.")
 
 # does not take in user input other than the URL and title if given one by the user
 def download_audio(video, title="", directory=".") -> None:
@@ -185,13 +186,27 @@ def main(argv) -> None:
 
     while decision.capitalize().strip() == "Y":
         url = input("Enter the URL of the video: ")
-        download(url)
+        title = download(url)
         decision = input(
             "Would you like to download another video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
         )
+
+        decision = input(
+            f"Would you like to convert video to .wav?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
+        )
+
+        if decision.capitalize().strip() == "Y":
+            convert_to_wav(title)
+            
+        decision = input(
+            f"Would you like to convert video to .wav?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
+        )
+
 
     print("\nExiting program...")
 
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
+
