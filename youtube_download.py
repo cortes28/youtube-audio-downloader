@@ -5,10 +5,11 @@ import time
 try:
     from pytube import YouTube
     from pydub import AudioSegment
+    import speech_recognition as sr
 except ImportError:
     print(ImportError.msg)
     print(
-        "\033[1;31;40m Couldn't import |YouTube| from |pytube| OR |AudioSegment| from pydub \u001b[0m "
+        "\033[1;31;40m Couldn't import |YouTube| from |pytube| OR |AudioSegment| from pydub OR speech recognition \u001b[0m "
     )
     print('The needed command for Python3 would be "pip3 install pytube/pydub"')
     print(
@@ -17,31 +18,63 @@ except ImportError:
     print("Exiting program...")
     sys.exit()
 
+# no return yet maybe bool or string format, will determine after if needed, also assuming that the video string is in format .wav
+# TODO : still not working as it should
+def wav_to_text(video: str, title: str = "") -> list[str]:
+    # use the source file .wav as the audio source to convert to text
+    li = list()
+    video = video.strip()
+    title = title.strip()
+
+    # make sure if the file exists and if it doesn't it will create it IFF the video string is a valid youtube link
+    file_exists = os.path.exists(path=video)
+
+    if file_exists is False:
+        print(f"Converting {video} to .wav...")
+        video = convert_to_wav(video=video, title=title)
+
+    try:
+        speech_recognizer = sr.Recognizer()
+        with speech_recognizer.AudioFile(video) as src:
+            audio = speech_recognizer.record(src)
+
+            print(f"transcription: {speech_recognizer.recognize_google(audio)}")
+            li.append(speech_recognizer.recognize_google(audio))
+        
+        return li
+    except:
+        print(f"Failure in converting video: {video} to text")
+
 
 # convert a mp3 file to a wav file
-def convert_to_wav(video, title="") -> bool:
+def convert_to_wav(video: str, title: str = "") -> str:
     """
     input: video title which may contain .mp3 in string format, new title if given one
+    return: the new video title with the .wav extension
     """
     dest = ""
     video = video.strip()
     title = title.strip()
+    try:
+        if len(title) != 0:
+            dest = str(title) + ".wav"
+        elif ".mp3" in video:
+            dest = video.replace(".mp3", ".wav")
+        else:
+            dest = video + ".wav"
+            video = video + ".mp3"
+            
 
-    if len(title) != 0:
-        dest = str(title) + ".wav"
-    elif video.includes(".mp3"):
-        dest = video.replace(".mp3", ".wav")
-    else:
-        dest = video + ".wav"
-        video = video + ".mp3"
-
-    # convert now from mp3 to wav
-    sound = AudioSegment.from_mp3(video)
-    sound.export(dest, format="wav")
-
+        # convert now from mp3 to wav
+        sound = AudioSegment.from_file(video)
+        sound.export(dest, format="wav")
+        return dest
+    except Exception as e:
+        print(f"Error in converting INPUT:{video} to .wav file...\nNOTE it has to be an .mp3 file.")
+        print(f"ERROR: {e}")
 
 # does not take in user input other than the URL and title if given one by the user
-def download_audio(video, title="", directory=".") -> None:
+def download_audio(video: str, title: str="", directory: str=".") -> None:
     """
     input: Youtube video URL (video URL enclosed with "<video URL>"), optional title for it, and optional directory
     """
@@ -50,8 +83,9 @@ def download_audio(video, title="", directory=".") -> None:
     yt = None
     try:
         yt = YouTube(video)
-    except:
+    except Exception as e:
         print("Failure in converting video...")
+        print(f"ERROR: {e}")
         return
 
     if len(title) > 0:
@@ -87,8 +121,9 @@ def download(video) -> str:
     yt = None
     try:
         yt = YouTube(video)
-    except:
+    except Exception as e:
         print("Failure in converting current video...")
+        print("ERROR: {e}")
         return
 
     name = yt.title
@@ -153,13 +188,14 @@ def download(video) -> str:
     print(f"{name} has been downloaded\n")
 
     # returns the title name with the 'mp3' appended to it
-    return audio_download
+    title = title + ".mp3"
+    return title
 
 
 def main(argv) -> None:
     # for each "URL" convert to audio file (mp3)
-    for x in argv:
-        download_audio(x)
+    for link in argv:
+        download_audio(video=link)
 
     output = "a"
     if len(argv) > 0:
@@ -169,12 +205,33 @@ def main(argv) -> None:
     decision = input(
         f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
     )
+    
+    output = "another"
 
     while decision.capitalize().strip() == "Y":
         url = input("Enter the URL of the video: ")
-        download(url)
+        title = download(video=url)
+
         decision = input(
-            "Would you like to download another video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
+            f"Would you like to convert video to .wav?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
+        )
+
+        if decision.capitalize().strip() == "Y":
+            title = convert_to_wav(video=title)
+            
+        decision = input(
+            f"Would you like to convert to text this current video?"
+            "\033[1;31;40m *NOTE* the video must be in .wav format so there the program will convert to .wav format if it is NOT already converted\u001b[0m"
+            "Enter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
+        )
+
+        # list (of strings) of the video to text
+        li = list()
+        if decision.capitalize().strip() == "Y":
+            wav_to_text(video=title)
+
+        decision = input(
+        f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
         )
 
     print("\nExiting program...")
@@ -182,3 +239,5 @@ def main(argv) -> None:
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
+
