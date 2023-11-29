@@ -1,4 +1,5 @@
-Python 3 script based on downloading YouTube videos and converting them to MP3 Files.
+Python 3 script based on downloading YouTube videos and converting them to MP3 Files. 
+Notes at the bottom are notices to be considered as the program could have issues. Namely, the audio-to-speech is not working.
 
 Note that there are modules to import
 
@@ -50,3 +51,13 @@ The fourth method is a direct function that accepts multiple parameters into arg
 * video - the string containing a YouTube URL
 * title - if empty, it will use the given YouTube title
 * directory - if you want to store it in a specific directory, otherwise it will download it into the current folder/directory
+
+## Current Bugs/Errors
+
+* When running the function and being prompted.
+  `Would you like to convert to text this current video?`
+  The program will not be able to create this conversion, please press any button to continue to not run into any issues.
+
+## Other
+
+If you have any other questions please let me know!
