@@ -20,30 +20,34 @@ except ImportError:
 
 # no return yet maybe bool or string format, will determine after if needed, also assuming that the video string is in format .wav
 # TODO : still not working as it should
+# It seems it can only transcribe audio for a short duration -> perhaps make it as a summarizer?
 def wav_to_text(video: str, title: str = "") -> list[str]:
     # use the source file .wav as the audio source to convert to text
-    li = list()
+    
+    text = None
     video = video.strip()
     title = title.strip()
 
     # make sure if the file exists and if it doesn't it will create it IFF the video string is a valid youtube link
     file_exists = os.path.exists(path=video)
 
-    if file_exists is False:
+    if file_exists is False or ".mp3" in video:
         print(f"Converting {video} to .wav...")
         video = convert_to_wav(video=video, title=title)
 
-    try:
-        speech_recognizer = sr.Recognizer()
-        with speech_recognizer.AudioFile(video) as src:
-            audio = speech_recognizer.record(src)
+    # initialize the recognizer
+    r = sr.Recognizer()
 
-            print(f"transcription: {speech_recognizer.recognize_google(audio)}")
-            li.append(speech_recognizer.recognize_google(audio))
-        
-        return li
-    except:
-        print(f"Failure in converting video: {video} to text")
+    # open the file
+    with sr.AudioFile(video) as source:
+        # listen for the data (load audio to memory)
+        audio_data = r.record(source)
+        # recognize (convert from speech to text)
+        text = r.recognize_google(audio_data)
+        print(text)
+
+    
+    return text
 
 
 # convert a mp3 file to a wav file
