@@ -1,11 +1,25 @@
 import sys
 import os
 import time
+import json
+
+FRAME_RATE = 16000  # for speech recognition, with sampling rate of 1600 Hz 
+CHANNELS = 1        # only will configure audio to single channel over L & R channels
+model = None        # will load model in try
+rec = None          # the recognizer
 
 try:
     from pytube import YouTube
     from pydub import AudioSegment
+    from vosk import Model, KaldiRecognizer
+    # may delete this in the future as I found a new model 'vosk' to transcribe audio
     import speech_recognition as sr
+
+    # unsure if to move this into mp3_to_text function
+    model = Model(model_name="vosk-model-small-en-us-0.15")
+    rec = KaldiRecognizer(model, FRAME_RATE)
+    rec.SetWords(True)
+
 except ImportError:
     print(ImportError.msg)
     print(
@@ -19,8 +33,7 @@ except ImportError:
     sys.exit()
 
 # no return yet maybe bool or string format, will determine after if needed, also assuming that the video string is in format .wav
-# TODO : still not working as it should
-# It seems it can only transcribe audio for a short duration -> perhaps make it as a summarizer?
+# Only works with short audio files (less than 45 seconds)
 def wav_to_text(video: str, title: str = "") -> list[str]:
     # use the source file .wav as the audio source to convert to text
     
@@ -44,7 +57,6 @@ def wav_to_text(video: str, title: str = "") -> list[str]:
         audio_data = r.record(source)
         # recognize (convert from speech to text)
         text = r.recognize_google(audio_data)
-        print(text)
 
     
     return text
@@ -76,6 +88,39 @@ def convert_to_wav(video: str, title: str = "") -> str:
     except Exception as e:
         print(f"Error in converting INPUT:{video} to .wav file...\nNOTE it has to be an .mp3 file.")
         print(f"ERROR: {e}")
+
+
+def mp3_to_text(filename: str) -> list[str]:
+    """
+    input: mp3 string name, needs .mp3 extension! 
+
+    Will transcribe audio to text
+    """
+    mp3 = AudioSegment.from_file(filename)
+    mp3 = mp3.set_channels(CHANNELS)
+    mp3 = mp3.set_frame_rate(FRAME_RATE)
+
+    # iterate over 45 seconds of audio
+    step = 45000
+
+    transcript = list()
+
+    # transcribe pieces of audio (45 second intervals) to text
+    for i in range(0, len(mp3), step):
+        print(f"Progress: {i/len(mp3)}")
+        segment = mp3[i:(i+step)]
+
+        rec.AcceptWaveform(segment.raw_data)
+        result = rec.Result()
+
+        text = json.loads(result)["text"]
+        transcript.append(text)
+
+    print(transcript)
+
+    return transcript
+
+
 
 # does not take in user input other than the URL and title if given one by the user
 def download_audio(video: str, title: str="", directory: str=".") -> None:
@@ -216,6 +261,19 @@ def main(argv) -> None:
         url = input("Enter the URL of the video: ")
         title = download(video=url)
 
+
+        decision = input(
+            f"Would you like to convert video to text?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
+        )
+
+        if decision.capitalize().strip() == "Y":
+            text = mp3_to_text(filename=title)
+
+            for segment in text:
+                print(text)
+            
+        # TODO: Summarizer right after of converting to text
+
         decision = input(
             f"Would you like to convert video to .wav?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
         )
@@ -223,22 +281,7 @@ def main(argv) -> None:
         if decision.capitalize().strip() == "Y":
             title = convert_to_wav(video=title)
             
-        decision = input(
-            f"Would you like to convert to text this current video?"
-            "\033[1;31;40m *NOTE* the video must be in .wav format so there the program will convert to .wav format if it is NOT already converted\u001b[0m"
-            "Enter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
-        )
-
-        # list (of strings) of the video to text
-        li = list()
-        if decision.capitalize().strip() == "Y":
-            wav_to_text(video=title)
-
-        decision = input(
-        f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
-        )
-
-    print("\nExiting program...")
+   
 
 
 if __name__ == "__main__":

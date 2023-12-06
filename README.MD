@@ -1,13 +1,14 @@
-Python 3 script based on downloading YouTube videos and converting them to MP3 Files. 
-Notes at the bottom are notices to be considered as the program could have issues. Namely, the audio-to-speech is not working.
 
-Note that there are modules to import
 
 `pytube import YouTube`
+`from vosk import Model, KaldiRecognizer`
+`from pydub import AudioSegment` 
 
 which may cause issues. you will need to pip3 install
 
 `pip3 install pytube`
+`pip3 install vosk`
+`pip3 install pydub`
 
 Second module
 
@@ -22,17 +23,17 @@ If there are any other issues with the pip3 install, it may be that your pip3 is
 
 The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt the program.
 
-# Method 1
+## Method 1
 
 Press run. The program will prompt you to give it a YouTube URL.
 
-# Method 2
+## Method 2
 
 The second way is to run it as given. It will then prompt you to give it a YouTube URL.
 
 `python3 youtube_download.py`
 
-# Method 3
+## Method 3
 
 The third way allows you to give it multiple arguments containing the proper YouTube URL encased in double quotations as shown during execution.
 
@@ -42,7 +43,7 @@ Here is an example showing how it can be done
 
 `python3 youtube_download.py "https://www.youtube.com/watch?v=ySO56zJxIns"`
 
-# Method 4
+## Method 4
 
 The fourth method is a direct function that accepts multiple parameters into arguments using the following function.
 
@@ -52,12 +53,3 @@ The fourth method is a direct function that accepts multiple parameters into arg
 * title - if empty, it will use the given YouTube title
 * directory - if you want to store it in a specific directory, otherwise it will download it into the current folder/directory
 
-## Current Bugs/Errors
-
-* When running the function and being prompted.
-  `Would you like to convert to text this current video?`
-  The program will not be able to create this conversion, please press any button to continue to not run into any issues.
-
-## Other
-
-If you have any other questions please let me know!
