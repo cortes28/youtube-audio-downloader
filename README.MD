@@ -1,28 +1,33 @@
-Python 3 script based on downloading youtube videos and converting them to MP3 Files.
+Python 3 script based on downloading youtube videos and converting them to MP3 Files in order to convert them to text! With the option to convert them to .wav if needed. I will have a section below of upcoming updates for this program and future goals. 
 
-Note that there is a module import
+
+Note that there are specific module imports
 
 `pytube import YouTube`
+`from vosk import Model, KaldiRecognizer`
+`from pydub import AudioSegment` 
 
 which may cause issues. you will need to pip3 install
 
 `pip3 install pytube`
+`pip3 install vosk`
+`pip3 install pydub`
 
 If there are any other issues with the pip3 install, it may be that your pip3 is broken or other.
 
 The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt the program.
 
-# Method 1
+## Method 1
 
 Simply pressing run. The program will prompt you to give it a YouTube URL.
 
-# Method 2
+## Method 2
 
 Second way is to run it as given. It will then prompt you to give it a YouTube URL.
 
 `python3 youtube_download.py`
 
-# Method 3
+## Method 3
 
 The third way allows you to give it multiple arguments containing the proper YouTube URL encased in double quotations as shown during excecution.
 
@@ -32,7 +37,7 @@ Here is an example showing how it can be done
 
 `python3 youtube_download.py "https://www.youtube.com/watch?v=ySO56zJxIns"`
 
-# Method 4
+## Method 4
 
 Fourth method is a direct function that accepts multiple parameters into arguments using the following function.
 
@@ -41,3 +46,7 @@ Fourth method is a direct function that accepts multiple parameters into argumen
 * video - the string containing a Youtube URL
 * title - if empty, it will use the given YouTube title
 * directory - if you want to store it in a specific directory, otherwise it will download it into the current folder/directory
+
+# Future Updates
+
+I am looking forward to further advancing this program and currently am looking for a model that would summarize the piece of text from the video. The next biggest update will be to bring this program into a website with Django to allow users to use. However, first I will try to continue working on this code until it seems viable to bring onto django. So it will be a little while longer before it comes into life!
