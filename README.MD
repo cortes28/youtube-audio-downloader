@@ -18,11 +18,9 @@ which may cause issues. you will need to pip3 install
 `pip3 install vosk`
 `pip3 install pydub`
 
-Second module
+The fourth module was previously used. However, future advancements in the code have made it redundant. I will keep it until the program is finalized to see if it is needed. 
 
-`pip3 install pydub`
-
-The third module is still not being fully utilized but may be used for future features
+`import speech_recognition as sr`
 
 `pip3 install SpeechRecognition`
 
