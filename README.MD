@@ -64,7 +64,7 @@ The fourth method is a direct function that accepts multiple parameters into arg
 # Future Updates
 
 I am looking forward to further advancing this program and currently am looking for a model that would summarize the piece of text from the video. The next biggest update will be to bring this program into a website with Django to allow users to use. However, first I will try to continue working on this code until it seems viable to bring onto Django. So it will be a little while longer before it comes to life!
-=======
+
 ## Current Bugs/Errors
 
 * Have not run into any bugs/errors, but that does not mean there might not be any! Let me know if there is an error!
