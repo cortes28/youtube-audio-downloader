@@ -32,21 +32,33 @@ except ImportError:
     print("Exiting program...")
     sys.exit()
 
-# no return yet maybe bool or string format, will determine after if needed, also assuming that the video string is in format .wav
-# Only works with short audio files (less than 45 seconds)
-def wav_to_text(video: str, title: str = "") -> list[str]:
+
+def wav_to_text(filename: str) -> str:
+    """
+    (Outdated function - may be deleted)
+    Converts up to 45 seconds of audio to text from a WAV audio file.
+
+    Parameters
+    ----------
+        filename: str
+            The name of the WAV file that will be transcribed to text.
+
+    Returns
+    -------
+    str
+        The transribed audio of up to 45 seconds. 
+    """
     # use the source file .wav as the audio source to convert to text
     
     text = None
-    video = video.strip()
-    title = title.strip()
+    video = filename.strip()
 
     # make sure if the file exists and if it doesn't it will create it IFF the video string is a valid youtube link
     file_exists = os.path.exists(path=video)
 
     if file_exists is False or ".mp3" in video:
         print(f"Converting {video} to .wav...")
-        video = convert_to_wav(video=video, title=title)
+        video = convert_to_wav(video=video)
 
     # initialize the recognizer
     r = sr.Recognizer()
@@ -62,14 +74,26 @@ def wav_to_text(video: str, title: str = "") -> list[str]:
     return text
 
 
-# convert a mp3 file to a wav file
-def convert_to_wav(video: str, title: str = "") -> str:
+def convert_to_wav(filename: str, title: str = "") -> str:
     """
-    input: video title which may contain .mp3 in string format, new title if given one
-    return: the new video title with the .wav extension
+    Converts an existing mp3 file to a wav file and returns the title of the .wav file created.
+    
+    Parameters
+    ----------
+    filename: str
+        The video string that will be converted *NOTE* that it must be .mp3.
+    title: str
+        the name of the .wav if the user wants to rename it, otherwise it will use the name from the .mp3 file.
+
+    Returns
+    -------
+    str
+        Returns the name of the file that we just made with the .wav extension, 
+    otherwise return nothing.
+
     """
     dest = ""
-    video = video.strip()
+    video = filename.strip()
     title = title.strip()
     try:
         if len(title) != 0:
@@ -88,13 +112,22 @@ def convert_to_wav(video: str, title: str = "") -> str:
     except Exception as e:
         print(f"Error in converting INPUT:{video} to .wav file...\nNOTE it has to be an .mp3 file.")
         print(f"ERROR: {e}")
+        return
 
 
 def mp3_to_text(filename: str) -> list[str]:
     """
-    input: mp3 string name, needs .mp3 extension! 
+    Converts an existing mp3 file to a list of string containing all of the transcribed text of the video.
 
-    Will transcribe audio to text
+    Parameters
+    ----------
+    filename: str
+        The existing .mp3 file that we will convert to text.
+
+    Returns
+    -------
+    list[str]
+        Returns a list of strings containing the transribed text of the video. 
     """
     mp3 = AudioSegment.from_file(filename)
     mp3 = mp3.set_channels(CHANNELS)
@@ -120,12 +153,26 @@ def mp3_to_text(filename: str) -> list[str]:
 
     return transcript
 
+def summarize_text(text: list[str]) -> str:
+    pass
 
 
-# does not take in user input other than the URL and title if given one by the user
 def download_audio(video: str, title: str="", directory: str=".") -> None:
     """
-    input: Youtube video URL (video URL enclosed with "<video URL>"), optional title for it, and optional directory
+    Converts a YouTube video into an .mp3 file.
+
+    Parameters
+    ----------
+    video: str
+        A YouTube hyperlink or URL in string format that the function will convert to an audio file (MP3).
+    title: str
+        A new title for the MP3 file if the user wants to change the name of it, otherwise it will default to the title of the video.
+    directory: str
+        The directory or folder that we want to place the MP3 file in, otherwise it will default to the same folder. 
+
+    Returns
+    -------
+    None
     """
 
     # convert into Youtube obj to get features
@@ -157,13 +204,20 @@ def download_audio(video: str, title: str="", directory: str=".") -> None:
     time.sleep(0.5)
 
 
-# default function for the download
-def download(video) -> str:
-    """
-    input: Youtube video URL (video)
 
-    Asks user regarding the current video if they want to change the skip the download of the current video, change title,
-    where they want to download it (directory/folder)
+def download(video: str) -> str:
+    """
+    (Default function) Converts a YouTube video into an MP3 file. Here the user will be asked more information regarding their download.
+
+    Parameters
+    ----------
+    video: str
+        A YouTube hyperlink or URL in string format that the function will convert to an audio file (MP3).
+
+    Returns
+    -------
+    str
+        Title of the video downloaded.
     """
 
     # convert into Youtube obj to get features
@@ -272,7 +326,15 @@ def main(argv) -> None:
             for segment in text:
                 print(text)
             
-        # TODO: Summarizer right after of converting to text
+            # TODO: Summarizer right after of converting to text
+            # decision = input(
+            #     f"Would you like to summarize the next?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
+            # )
+
+            # if decision.capitalize().strip() == "Y":
+            #     print(summarize_text(text=text))
+          
+
 
         decision = input(
             f"Would you like to convert video to .wav?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
