@@ -1,10 +1,17 @@
-Python 3 script based on downloading YouTube videos and converting them to MP3 Files to convert them to text! With the option to convert them to .wav if needed. I will have a section below of upcoming updates for this program and future goals. 
+Python 3 script based on downloading YouTube videos and converting them to MP3 Files to convert them to text! With the option to convert them to .wav if needed. Below is a section of upcoming updates for this program and future goals. 
 
+NOTES:
+Added 2 new functions. One that adds punctuation to the summarized text and another that would summarize the large text from the audio. The Summarizer is still in the works to determine what is best!
+There are NEW modules that I have not determined the specific 
+
+`pip3 install ...`
+
+but as soon as I can determine which are appropriate to add. I will update which are required. 
 
 Note that there are specific module imports
 =======
 Python 3 script based on downloading YouTube videos and converting them to MP3 Files. 
-Notes at the bottom are notices to be considered as the program could have issues. Namely, the audio-to-speech is not working.
+I've included notes at the bottom for you to consider as the program could have issues. Namely, the audio-to-speech is not working.
 
 Note that there are modules to import
 
@@ -61,7 +68,7 @@ The fourth method is a direct function that accepts multiple parameters into arg
 
 # Future Updates
 
-I am looking forward to further advancing this program and currently am looking for a model that would summarize the piece of text from the video. The next biggest update will be to bring this program into a website with Django to allow users to use. However, first I will try to continue working on this code until it seems viable to bring onto Django. So it will be a little while longer before it comes to life!
+I am looking forward to further advancing this program and am currently looking for a model that would summarize the piece of text from the video. The next biggest update will be to bring this program into a website with Django to allow users to use. However, first I will try to continue working on this code until it seems viable to bring onto Django. So it will be a little while longer before it comes to life!
 
 ## Current Bugs/Errors
 
