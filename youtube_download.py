@@ -2,23 +2,25 @@ import sys
 import os
 import time
 import json
+from deepmultilingualpunctuation    import PunctuationModel    # for punctuation
 
 FRAME_RATE = 16000  # for speech recognition, with sampling rate of 1600 Hz 
 CHANNELS = 1        # only will configure audio to single channel over L & R channels
 model = None        # will load model in try
+punctuation_model = PunctuationModel()
 rec = None          # the recognizer
 
-try:
-    from pytube import YouTube
-    from pydub import AudioSegment
-    from vosk import Model, KaldiRecognizer
-    # may delete this in the future as I found a new model 'vosk' to transcribe audio
-    import speech_recognition as sr
 
-    # unsure if to move this into mp3_to_text function
-    model = Model(model_name="vosk-model-small-en-us-0.15")
-    rec = KaldiRecognizer(model, FRAME_RATE)
-    rec.SetWords(True)
+try:
+    from pytube                         import YouTube
+    from pydub                          import AudioSegment
+    from vosk                           import Model, KaldiRecognizer
+    # may delete this in the future as I found a new model 'vosk' to transcribe audio
+    import speech_recognition           as sr
+    import spacy                                                # For summarization
+    from spacy.lang.en.stop_words       import STOP_WORDS
+    from string                         import punctuation
+
 
 except ImportError:
     print(ImportError.msg)
@@ -128,7 +130,13 @@ def mp3_to_text(filename: str) -> list[str]:
     -------
     list[str]
         Returns a list of strings containing the transribed text of the video. 
+        
     """
+    
+    model = Model(model_name="vosk-model-small-en-us-0.15")
+    rec = KaldiRecognizer(model, FRAME_RATE)
+    rec.SetWords(True)
+
     mp3 = AudioSegment.from_file(filename)
     mp3 = mp3.set_channels(CHANNELS)
     mp3 = mp3.set_frame_rate(FRAME_RATE)
@@ -149,12 +157,78 @@ def mp3_to_text(filename: str) -> list[str]:
         text = json.loads(result)["text"]
         transcript.append(text)
 
-    print(transcript)
 
     return transcript
 
-def summarize_text(text: list[str]) -> str:
-    pass
+
+def punctuate_text(text_object) -> str:
+    text = None
+
+    if isinstance(text_object, list):
+        text = ' '.join(text_object)
+
+    else:
+        text = text_object
+
+    print(text)
+
+    result = punctuation_model.restore_punctuation(text)
+    #print(result)
+
+    return result
+# pip3 install -U pip setuptools wheel
+# pip3 install -U spacy
+# python3 -m spacy download en_core_web_sm
+def summarize_text(text_object, print_text: bool = False) -> str:
+    """
+    A text summarizer using spaCy
+
+    Parameters
+    ----------
+    text: list[str]
+        A list containing the full text of the text transcript.
+    print_text: bool
+        Set it to true if you want to print the text after being trasribed
+
+    Returns
+    -------
+    str
+        A string containing the summarized text.
+    """
+    text = None
+
+    nlp = spacy.blank("en")
+    nlp.add_pipe('sentencizer')
+
+    if isinstance(text_object, list):
+        text = ' '.join(text_object)
+
+    else:
+        text = text_object
+
+    if print_text:
+        print("\nTranscribed Text\n")
+        print(text + "\n")
+
+    # Convert text to lowercase and tokenize without removing stop words and punctuation
+    doc = nlp(text.lower())
+
+    # for calculating word frequencies
+    word_frequencies={}
+
+    for token in doc:
+        if token.text not in STOP_WORDS and token.text not in punctuation:
+            if token.text not in word_frequencies:
+                word_frequencies[token.text] = 1
+            else:
+                word_frequencies[token.text] += 1
+
+    sorted_sentences = sorted(doc.sents, key=lambda sent: sum(word_frequencies[token.text] for token in sent if token.text in word_frequencies), reverse=True)
+    summary = " ".join(sent.text for sent in sorted_sentences[:3])
+
+    #print(f"Summary: {summary}")
+    
+    return summary
 
 
 def download_audio(video: str, title: str="", directory: str=".") -> None:
@@ -294,17 +368,8 @@ def download(video: str) -> str:
     title = title + ".mp3"
     return title
 
-
-def main(argv) -> None:
-    # for each "URL" convert to audio file (mp3)
-    for link in argv:
-        download_audio(video=link)
-
-    output = "a"
-    if len(argv) > 0:
-        output = "another"
-        print("All the given videos have been downloaded!")
-
+def prompter() -> None:
+    
     decision = input(
         f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
     )
@@ -321,18 +386,18 @@ def main(argv) -> None:
         )
 
         if decision.capitalize().strip() == "Y":
-            text = mp3_to_text(filename=title)
+            text = punctuate_text(mp3_to_text(filename=title))
 
-            for segment in text:
-                print(text)
+            # for segment in text:
+            #     print(segment)
             
             # TODO: Summarizer right after of converting to text
-            # decision = input(
-            #     f"Would you like to summarize the next?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
-            # )
+            decision = input(
+                f"Would you like to summarize the text?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
+            )
 
-            # if decision.capitalize().strip() == "Y":
-            #     print(summarize_text(text=text))
+            if decision.capitalize().strip() == "Y":
+                print(summarize_text(text_object=text))
           
 
 
@@ -343,7 +408,38 @@ def main(argv) -> None:
         if decision.capitalize().strip() == "Y":
             title = convert_to_wav(video=title)
             
-   
+
+        decision = input(
+            f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
+        )
+
+
+
+def main(argv) -> None:
+    """
+    Our main function that will convert any hyperlink in string format (if given any) into audio. If argv did not receive any arguments, then we will move on to the prompter to 
+    prompt the user to enter any videos they would like to download.
+
+    Parameters
+    ----------
+    argv
+        Our arguments in the command line that are strings containing URLs to YouTube videos to convert. 
+    
+    Returns
+    -------
+    None
+    
+    """
+    for link in argv:
+        download_audio(video=link)
+
+    output = "a"
+    if len(argv) > 0:
+        output = "another"
+        print("All the given videos have been downloaded!")
+
+    prompter()
+
 
 
 if __name__ == "__main__":
