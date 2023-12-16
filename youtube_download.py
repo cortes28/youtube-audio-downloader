@@ -28,9 +28,9 @@ try:
 except ImportError:
     print(ImportError.msg)
     print(
-        "\033[1;31;40m Couldn't import |YouTube| from |pytube| OR |AudioSegment| from pydub OR speech recognition \u001b[0m "
+        "\033[1;31;40m Couldn't import module(s)\u001b[0m "
     )
-    print('The needed command for Python3 would be "pip3 install pytube/pydub"')
+    print('The needed command for Python3 would be "pip3 install <MODULE>"')
     print(
         "\n***NOTE*** \n\tIt may not work if there are issues with your pip3 OR other...\n"
     )
@@ -424,7 +424,7 @@ def download(video: str) -> str:
     print("\n")
     # ask if the user wants to download the audio for the given video
     decision = input(
-        f"Do you want to download the audio for this video? -> {name} \nEnter \033[1;31;40m N \u001b[0m to \033[1;31;40m not \u001b[0m download it. Otherwise enter any key to continue: "
+        f"Do you want to download the audio for this video? -> {name} \nEnter \033[1;31;40m N \u001b[0m to \033[1;31;40m NOT \u001b[0m download it. Otherwise enter any key to continue: "
     )
 
     if decision.capitalize().strip() == "N":
@@ -483,6 +483,18 @@ def download(video: str) -> str:
     return title
 
 def prompter() -> None:
+    """
+    Prompts the user with the video they would have choices after downloading a video such as converting to text, summarizing the text, or converting to .WAV 
+    format until the user no longer desires to. 
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None 
+    """
     
     decision = input(
         f"Would you like to download a video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
@@ -525,7 +537,7 @@ def prompter() -> None:
         )
 
         if decision.capitalize().strip() == "Y":
-            title = convert_to_wav(video=title)
+            title = convert_to_wav(filename=title)
             
 
         decision = input(
