@@ -1,82 +1,23 @@
+# Audio downloader from YouTube URL
+
 import sys
 import os
 import time
-import json
-from deepmultilingualpunctuation    import PunctuationModel    # for punctuation
-from string                         import punctuation
-from collections                    import Counter
-from heapq                          import nlargest
-
-
-FRAME_RATE = 16000  # for speech recognition, with sampling rate of 1600 Hz 
-CHANNELS = 1        # only will configure audio to single channel over L & R channels
-model = None        # will load model in try
-punctuation_model = PunctuationModel()
-rec = None          # the recognizer
-
 
 try:
-    from pytube                         import YouTube
-    from pydub                          import AudioSegment
-    from vosk                           import Model, KaldiRecognizer
-    # may delete this in the future as I found a new model 'vosk' to transcribe audio
-    import speech_recognition           as sr
-    import spacy                                                # For summarization
-    from spacy.lang.en.stop_words       import STOP_WORDS
-
-
+    from pytube import YouTube
+    from pydub import AudioSegment
 except ImportError:
     print(ImportError.msg)
     print(
-        "\033[1;31;40m Couldn't import module(s)\u001b[0m "
+        "\033[1;31;40m Couldn't import |YouTube| from |pytube| OR |AudioSegment| from pydub \u001b[0m "
     )
-    print('The needed command for Python3 would be "pip3 install <MODULE>"')
+    print('The needed command for Python3 would be "pip3 install pytube/pydub"')
     print(
         "\n***NOTE*** \n\tIt may not work if there are issues with your pip3 OR other...\n"
     )
     print("Exiting program...")
     sys.exit()
-
-
-def wav_to_text(filename: str) -> str:
-    """
-    (Outdated function - may be deleted)
-    Converts up to 45 seconds of audio to text from a WAV audio file.
-
-    Parameters
-    ----------
-        filename: str
-            The name of the WAV file that will be transcribed to text.
-
-    Returns
-    -------
-    str
-        The transribed audio of up to 45 seconds. 
-    """
-    # use the source file .wav as the audio source to convert to text
-    
-    text = None
-    video = filename.strip()
-
-    # make sure if the file exists and if it doesn't it will create it IFF the video string is a valid youtube link
-    file_exists = os.path.exists(path=video)
-
-    if file_exists is False or ".mp3" in video:
-        print(f"Converting {video} to .wav...")
-        video = convert_to_wav(video=video)
-
-    # initialize the recognizer
-    r = sr.Recognizer()
-
-    # open the file
-    with sr.AudioFile(video) as source:
-        # listen for the data (load audio to memory)
-        audio_data = r.record(source)
-        # recognize (convert from speech to text)
-        text = r.recognize_google(audio_data)
-
-    
-    return text
 
 
 def convert_to_wav(filename: str, title: str = "") -> str:
@@ -120,232 +61,7 @@ def convert_to_wav(filename: str, title: str = "") -> str:
         return
 
 
-def mp3_to_text(filename: str) -> list[str]:
-    """
-    Converts an existing mp3 file to a list of string containing all of the transcribed text of the video.
-
-    Parameters
-    ----------
-    filename: str
-        The existing .mp3 file that we will convert to text.
-
-    Returns
-    -------
-    list[str]
-        Returns a list of strings containing the transribed text of the video. 
-        
-    """
-    
-    model = Model(model_name="vosk-model-small-en-us-0.15")
-    rec = KaldiRecognizer(model, FRAME_RATE)
-    rec.SetWords(True)
-
-    mp3 = AudioSegment.from_file(filename)
-    mp3 = mp3.set_channels(CHANNELS)
-    mp3 = mp3.set_frame_rate(FRAME_RATE)
-
-    # iterate over 45 seconds of audio
-    step = 45000
-
-    transcript = list()
-
-    # transcribe pieces of audio (45 second intervals) to text
-    for i in range(0, len(mp3), step):
-        print(f"Progress: {i/len(mp3)}")
-        segment = mp3[i:(i+step)]
-
-        rec.AcceptWaveform(segment.raw_data)
-        result = rec.Result()
-
-        text = json.loads(result)["text"]
-        transcript.append(text)
-
-
-    return transcript
-
-
-def punctuate_text(text_object) -> str:
-    """
-    A function that punctuates a piece of text.
-
-    Parameters
-    ----------
-    text_object
-        A list or string containing the full text.
-    
-    Returns
-    -------
-    str 
-        A string containing the summarized text
-
-    """
-    text = None
-    
-
-    if isinstance(text_object, list):
-        text = ' '.join(text_object).strip()
-
-    else:
-        text = text_object.strip()
-
-    print(text)
-
-    if text is None or len(text) == 0:
-        return None
-
-    result = punctuation_model.restore_punctuation(text)
-    #print(result)
-
-    
-
-    return result
-# pip3 install -U pip setuptools wheel
-# pip3 install -U spacy
-# python3 -m spacy download en_core_web_sm
-
-def summarize_text(text_object, print_text: bool=False) -> str:
-    """
-    A text summarizer (version 1 of 'Extractive Summarization') using spaCy.
-    Extractive Summarization - A NLP method that works on extracting parts of the main peice of text and combines them to create a summary. The main idea is to extract the most important pieces of text.
-
-    Parameters
-    ----------
-    text_object
-        A list or string containing the full text of the text transcript.
-    print_text: bool
-        Set it to true if you want to print the text after being trasribed
-
-    Returns
-    -------
-    str
-        A string containing the summarized text.
-    None 
-        If no text is there, it will return None.
-    """ 
-    text = None
-
-    # if going inside this if, we will assume no punctuation has occurred, therefore it will be punctuated.
-    if isinstance(text_object, list):
-        text = punctuate_text(text_object=text_object).strip()
-
-        if text is None or text == "":
-            return None
-
-    else:
-        text = text_object.strip()
-
-    #print(text)
-
-    # load the spaCy 'English' model and doc object
-    nlp = spacy.load("en_core_web_sm")
-    #nlp.add_pipe('sentencizer')
-    doc = nlp(text.lower())
-    size_text = len(list(doc.sents))
-
-    keyword = []
-    stopwords = list(STOP_WORDS)
-    pos_tag = ['PROPN', 'ADJ', 'NOUN', 'VERB']
-
-    # filtering tokens
-    for token in doc:
-        if token.text in stopwords or token.text in punctuation:
-            continue
-        if token.pos_ in pos_tag:
-            keyword.append(token.text)
-
-    # Calculate the frequency of the words and normalize the frequency of these words in the given text.
-    #print(keyword)
-    freq_words = Counter(keyword)
-    max_freq = Counter(keyword).most_common(1)[0][1]
-
-    for word in freq_words.keys():
-        freq_words[word] = (freq_words[word]/max_freq)
-
-    
-    sentence_strength = {}
-
-    for sent in doc.sents:
-        for word in sent:
-            if word.text in freq_words.keys():
-                if sent in sentence_strength.keys():
-                    sentence_strength[sent] += freq_words[word.text]
-                else:
-                    sentence_strength[sent] = freq_words[word.text]
-
-    # summarize the string by grabbing the highest impact sentences and set in a string format
-    summarized_text = nlargest(min(3, size_text), sentence_strength, key=sentence_strength.get)
-    summary_list = [sent.text for sent in summarized_text]
-    summary = ' '.join(summary_list)
-
-    if print_text:
-        print(f"Summary: {summary}")
-
-    return summary 
-
-
-
-def summarize_text_2(text_object, print_text: bool = False) -> str:
-    """
-    A text summarizer (version 2 'Extractive Summarization') using spaCy.
-    Extractive Summarization - A NLP method that works on extracting parts of the main peice of text and combines them to create a summary. The main idea is to extract the most important pieces of text.
-
-    Parameters
-    ----------
-    text_object
-        A list or string containing the full text of the text transcript.
-    print_text: bool
-        Set it to true if you want to print the text after being trasribed
-
-    Returns
-    -------
-    str
-        A string containing the summarized text.
-    """
-    text = None
-
-    nlp = spacy.blank("en")
-    nlp.add_pipe('sentencizer')
-
-    # if going inside this if, we will assume no punctuation has occurred, therefore it will be punctuated.
-    if isinstance(text_object, list):
-        text = punctuate_text(text_object=text_object).strip()
-
-        if text is None or text == "":
-            return None
-
-    else:
-        text = text_object.strip()
-
-    if print_text:
-        print("\nTranscribed Text\n")
-        print(text + "\n")
-
-    # Convert text to lowercase and tokenize without removing stop words and punctuation
-    doc = nlp(text.lower())
-    size_text = len(list(doc.sents))
-
-    # for calculating word frequencies
-    word_frequencies={}
-
-    # get word frequencies
-    for token in doc:
-        if token.text not in STOP_WORDS and token.text not in punctuation:
-            if token.text not in word_frequencies:
-                word_frequencies[token.text] = 1
-            else:
-                word_frequencies[token.text] += 1
-
-    #Sort by the number of sentences with the highest importance (based by word frequencies)
-    sorted_sentences = sorted(doc.sents, key=lambda sent: sum(word_frequencies[token.text] for token in sent if token.text in word_frequencies), reverse=True)
-    summary = " ".join(sent.text for sent in sorted_sentences[:min(3, size_text)])
-
-    if print_text:
-        print(f"Summarized Text: {summary}\n")
-    #print(f"Summary: {summary}")
-    
-    return summary
-
-
+# does not take in user input other than the URL and title if given one by the user
 def download_audio(video: str, title: str="", directory: str=".") -> None:
     """
     Converts a YouTube video into an .mp3 file.
@@ -391,6 +107,7 @@ def download_audio(video: str, title: str="", directory: str=".") -> None:
 
     print(f"{name} has been downloaded\n")
     time.sleep(0.5)
+
 
 
 def download(video: str) -> str:
@@ -482,10 +199,10 @@ def download(video: str) -> str:
     title = title + ".mp3"
     return title
 
+
 def prompter() -> None:
     """
-    Prompts the user with the video they would have choices after downloading a video such as converting to text, summarizing the text, or converting to .WAV 
-    format until the user no longer desires to. 
+    Prompts the user if they want to continue downloading audios from a YouTube URL.  
 
     Parameters
     ----------
@@ -503,33 +220,9 @@ def prompter() -> None:
     output = "another"
 
     while decision.capitalize().strip() == "Y":
+
         url = input("Enter the URL of the video: ")
         title = download(video=url)
-
-
-        decision = input(
-            f"Would you like to convert video to text?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
-        )
-
-        if decision.capitalize().strip() == "Y":
-            text = punctuate_text(mp3_to_text(filename=title))
-
-            # for segment in text:
-            #     print(segment)
-            
-            # TODO: Summarizer right after of converting to text
-            if text is not None:
-                decision = input(
-                    f"Would you like to summarize the text?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to continue: "
-                )
-
-                if decision.capitalize().strip() == "Y":
-                    print(summarize_text(text_object=text))
-                    print("\n----------------------------------------------\n\n")
-                    print(summarize_text_2(text_object=text))
-            else:
-                print("THERE WAS NO TEXT FOUND WITHIN THE AUDIO -> WILL SKIP THE SUMMARIZER AS WELL...\n")
-            
 
 
         decision = input(
@@ -543,7 +236,6 @@ def prompter() -> None:
         decision = input(
             f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
         )
-
 
 
 def main(argv) -> None:
@@ -571,9 +263,8 @@ def main(argv) -> None:
 
     prompter()
 
+    print("exiting program...")
 
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-
