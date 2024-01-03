@@ -32,7 +32,7 @@ The fourth module was previously used. However, future advancements in the code 
 There may be other methods towards installing such modules depending on your environment.
 If there are any other issues with the pip3 install, it may be that your pip3 is broken.
 
-The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt both scripts. 
+The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt both scripts. If you only want to convert a YouTube URL to an MP3/WAV file. use the `youtube_download.py` script in place of the `youtube_summarizer.py` script. 
 
 ## Method 1
 
@@ -42,17 +42,17 @@ Press run. The program will prompt you to give it a YouTube URL.
 
 The second way is to run it as given. It will then prompt you to give it a YouTube URL.
 
-`python3 youtube_download.py`
+`python3 youtube_summarizer.py`
 
 ## Method 3
 
 The third way allows you to give it multiple arguments containing the proper YouTube URL encased in double quotations as shown during execution.
 
-`python3 youtube_download.py "<YouTube URL #1>" "<YouTube URL #2>"`
+`python3 youtube_summarizer.py "<YouTube URL #1>" "<YouTube URL #2>"`
 
 Here is an example showing how it can be done
 
-`python3 youtube_download.py "https://www.youtube.com/watch?v=ySO56zJxIns"`
+`python3 youtube_summarizer.py "https://www.youtube.com/watch?v=ySO56zJxIns"`
 
 ## Method 4
 
