@@ -1,31 +1,29 @@
-Python 3 script based on downloading YouTube videos and converting them to MP3 Files to convert them to text! With the option to convert them to .wav if needed. Below is a section of upcoming updates for this program and future goals. 
+2 Python scripts
+================
+ `youtube_download.py`
+the original file now ONLY contains code to convert a YouTube URL to an MP3/WAV file.
+`youtube_summarizer.py`
+is a new file containing code to convert a YouTube URL to an MP3 to summarize (using the 'Extractive Summarization' method) the video using spaCy. 
 
 NOTES:
-Added 2 new functions. One that adds punctuation to the summarized text and another that would summarize the large text from the audio. The Summarizer is still in the works to determine what is best!
-There are NEW modules that I have not determined the specific 
 
-`pip3 install ...`
-
-but as soon as I can determine which are appropriate to add. I will update which are required. 
-
-Note that there are specific module imports
-=======
-Python 3 script based on downloading YouTube videos and converting them to MP3 Files. 
-I've included notes at the bottom for you to consider as the program could have issues. Namely, the audio-to-speech is not working.
-
-Note that there are modules to import
+There are modules to import
 
 `pytube import YouTube`
 `from vosk import Model, KaldiRecognizer`
 `from pydub import AudioSegment` 
+and more...
 
 which may cause issues. you will need to pip3 install
 
 `pip3 install pytube`
 `pip3 install vosk`
 `pip3 install pydub`
+`pip3 install -U spacy`
+`python3 -m spacy download en_core_web_sm`
 
-The fourth module was previously used. However, future advancements in the code have made it redundant. I will keep it until the program is finalized to see if it is needed. 
+
+The fourth module was previously used. However, future advancements in the code have made it redundant. It will only convert a WAV file up to 45 seconds. Using the MP3-to-text method is more applicable. 
 
 `import speech_recognition as sr`
 
@@ -34,7 +32,7 @@ The fourth module was previously used. However, future advancements in the code 
 There may be other methods towards installing such modules depending on your environment.
 If there are any other issues with the pip3 install, it may be that your pip3 is broken.
 
-The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt the program.
+The environment that this was run in was in a WSL2 Ubuntu. There are multiple ways to prompt both scripts. 
 
 ## Method 1
 
@@ -68,7 +66,7 @@ The fourth method is a direct function that accepts multiple parameters into arg
 
 # Future Updates
 
-I am looking forward to further advancing this program and am currently looking for a model that would summarize the piece of text from the video. The next biggest update will be to bring this program into a website with Django to allow users to use. However, first I will try to continue working on this code until it seems viable to bring onto Django. So it will be a little while longer before it comes to life!
+I believe I will make small patches, I am already looking forward to moving this into a more applicable environment. Either using Flask or Django. I am experimenting with which is better as I have hopes of publishing this as a website with the main focus being a YouTube summarizer! 
 
 ## Current Bugs/Errors
 
