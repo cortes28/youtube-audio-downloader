@@ -179,7 +179,7 @@ def download(video: str) -> str:
             directory = "."
 
         print(
-            f"\nThe given directory for the song {name} is \033[1;35;40m '{directory}' \u001b[0m"
+            f"\nThe given directory for the audio file {name} is \033[1;35;40m '{directory}' \u001b[0m"
         )
         decision = input(
             "Do you wish to change it?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise enter any key to continue: "
