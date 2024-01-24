@@ -8,11 +8,14 @@ from collections                    import Counter
 from heapq                          import nlargest
 
 
+
 FRAME_RATE = 16000  # for speech recognition, with sampling rate of 1600 Hz 
 CHANNELS = 1        # only will configure audio to single channel over L & R channels
 model = None        # will load model in try
 punctuation_model = PunctuationModel()
 rec = None          # the recognizer
+
+
 
 
 try:
@@ -229,7 +232,7 @@ def summarize_text(text_object, print_text: bool=False) -> str:
         text = punctuate_text(text_object=text_object).strip()
 
         if text is None or text == "":
-            return None
+            return "There was nothing to summarize!"
 
     else:
         text = text_object.strip()
@@ -311,7 +314,7 @@ def summarize_text_2(text_object, print_text: bool = False) -> str:
         text = punctuate_text(text_object=text_object).strip()
 
         if text is None or text == "":
-            return None
+            return "There was nothing to summarize!"
 
     else:
         text = text_object.strip()
@@ -344,6 +347,7 @@ def summarize_text_2(text_object, print_text: bool = False) -> str:
     #print(f"Summary: {summary}")
     
     return summary
+
 
 
 def download_audio(video: str, title: str="", directory: str=".") -> None:
@@ -462,7 +466,7 @@ def download(video: str) -> str:
             directory = "."
 
         print(
-            f"\nThe given directory for the song {name} is \033[1;35;40m '{directory}' \u001b[0m"
+            f"\nThe given directory for the audio file {name} is \033[1;35;40m '{directory}' \u001b[0m"
         )
         decision = input(
             "Do you wish to change it?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise enter any key to continue: "
