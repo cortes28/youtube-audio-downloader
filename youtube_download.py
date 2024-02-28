@@ -1,9 +1,8 @@
-# Audio downloader from YouTube URL
-
 import sys
 import os
 import time
 
+# libraries that are possibly not added (use pip)
 try:
     from pytube import YouTube
     from pydub import AudioSegment
