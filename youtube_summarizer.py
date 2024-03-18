@@ -31,7 +31,7 @@ try:
 except ImportError:
     print(ImportError.msg)
     print(
-        "\033[1;31;40m Couldn't import module(s)\u001b[0m "
+        "\033[1;31;40m Couldn't import module(s)\u001b[0m"
     )
     print('The needed command for Python3 would be "pip3 install <MODULE>"')
     print(
@@ -547,6 +547,22 @@ def prompter() -> None:
         decision = input(
             f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
         )
+
+
+def own_mp3_prompter() -> None:
+    user_input = input("Enter the name of the MP3 file that you would like to convert to text. Otherwise type \033[1;31;40m'Exit'\u001b[0m")
+
+    while user_input != "E":
+        user_input = input("Enter the name of the MP3 file that you would like to convert to text. Otherwise type \033[1;31;40m'Exit'\u001b[0m")
+        user_input.strip()
+
+        if ".mp3" in user_input:
+            pass
+        else:
+            user_input + ".mp3"
+
+        print(summarize_text_2(punctuate_text(mp3_to_text(user_input))))
+    
 
 
 
