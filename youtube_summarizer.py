@@ -150,16 +150,19 @@ def mp3_to_text(filename: str) -> list[str]:
     # iterate over 45 seconds of audio
     step = 45000
 
+    # if audio is shorter than 45 seconds, make the max len of a step that size
+    if step > len(mp3):
+        step = len(mp3)
+
     transcript = list()
 
     # transcribe pieces of audio (45 second intervals) to text
     for i in range(0, len(mp3), step):
-        print(f"Progress: {i/len(mp3)}")
+        # print(f"Progress: {i/len(mp3)}")
+        
         segment = mp3[i:(i+step)]
-
         rec.AcceptWaveform(segment.raw_data)
         result = rec.Result()
-
         text = json.loads(result)["text"]
         transcript.append(text)
 
