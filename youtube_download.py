@@ -212,12 +212,17 @@ def prompter() -> None:
     None 
     """
     
+    # f"Would you like to download a video?\nEnter \033[1;31;40m Y \u001b[0m for a YouTube Video\n Enter \033[1;31;40m M \u001b[0m for an MP3 file in your directory. Otherwise press any key to exit: "
     decision = input(
         f"Would you like to download a video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
     )
     
     output = "another"
+    
+    # New While loop that will store either choice as we now added a second choice for the user too use
+    # While decision.capitalize().strip() == "Y" or decision.capitalize().strip() == "M":
 
+    # Switch to an if or switch (will check if switch are in Python as they are in C++)
     while decision.capitalize().strip() == "Y":
 
         url = input("Enter the URL of the video: ")
@@ -235,6 +240,8 @@ def prompter() -> None:
         decision = input(
             f"Would you like to download {output} video?\nEnter \033[1;31;40m Y \u001b[0m to do so. Otherwise press any key to exit: "
         )
+
+    # Add the other if or switch for downloading a video in the directory 
 
 
 def main(argv) -> None:
@@ -256,6 +263,7 @@ def main(argv) -> None:
         download_audio(video=link)
 
 
+    # By default will look at these as YouTube video link objects in the given argv 
     if len(argv) > 0:
         print("All the given videos have been downloaded!")
 
